@@ -4,11 +4,11 @@ var app = express();
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
 
-var potet_tekst = 'en tekst om poteter';
+var anime_tekst = 'en tekst om poteter';
 
 app.get('/', function (req, res) {
     res.render('index.ejs', {
-        innhold: potet_tekst
+        innhold: anime_tekst
     })
 })
 

@@ -1,76 +1,70 @@
 var express = require('express');
 var app = express();
+var mysql = require('mysql');
+var fs = require('fs');
+
+//azure 
+var con=mysql.createConnection({host:"jons-sql.mysql.database.azure.com",
+user:"Jons", password:"Passord1", database:"test", port:3306,
+ssl:{ca:fs.readFileSync("DigiCertGlobalRootCA.crt.pem")}});
+
+
+// links
+app.use(express.static('public'));
+
+// set the view engine to ejs
+app.set('view engine', 'ejs');
 
 app.get('/', function (req, res) {
-   res.sendFile(__dirname + '/' + 'index.html');
+   con.connect(function(err) {
+      if (err) throw err;
+      con.query("SELECT * FROM test_table", function (err, result, fields) {
+         if (err) throw err;
+         console.log(result);     
+
+         var innhold = "anime";
+   
+         res.render('index.ejs', {
+            data: result,
+            innhold: innhold
+            
+        });
+        console.log(result, "2")
+      });
+   
+   });
+ })
+
+ app.get('/anime', function (req, res) {
+    res.send('anime was requested');
+ })
+
+ app.get('/index*', function (req, res) {
+    res.sendfile(__dirname + "/" + "index.html");
+ })
+
+ app.get('/about*', function (req, res) {
+    res.sendfile(__dirname + "/" + "about.html");
+ })
+
+ app.get('/login*', function (req, res) {
+   res.sendfile(__dirname + "/" + "login.html");
 })
 
-app.get('/index*', function (req, res) {
-    res.sendFile(__dirname + '/' + 'index.html');
-})
-
-app.get('/about*', function (req, res) {
-    res.sendFile(__dirname + '/' + 'about.html');
-})
-
-app.get('/login*', function (req, res) {
-    res.sendFile(__dirname + '/' + 'login.html');
-})
-
-app.get('/process_get', function (req, res) {
+ app.get('/process_get', function (req, res) {
     // Prepare output in JSON format
     response = {
-      username:req.query.username,
-      password:req.query.password
+       username:req.query.username,
+       password:req.query.password
     };
     console.log(response);
     res.end(JSON.stringify(response));
-})
-
-var server = app.listen(8081, function () {
-   var host = server.address().address
-   var port = server.address().port
-   
-   console.log("Example app listening at http://%s:%s", host, port)
-})
+ })
 
 
-
-
-
-
-
-
-
-
-/*
-// This responds with "Hello World" on the homepage
-app.get('/', function (req, res) {
-    console.log("Got a GET request for the homepage");
-    res.send('Hello GET');
-})
-
-// This responds a POST request for the homepage
-app.post('/', function (req, res) {
-    console.log("Got a POST request for the homepage");
-    res.send('Hello POST');
-})
-
-// This responds a DELETE request for the /del_user page.
-app.delete('/del_user', function (req, res) {
-    console.log("Got a DELETE request for /del_user");
-    res.send('Hello DELETE');
-})
-
-// This responds a GET request for the /list_user page.
-app.get('/list_user', function (req, res) {
-    console.log("Got a GET request for /list_user");
-    res.send('Page Listing');
-})
-
-// This responds a GET request for abcd, abxcd, ab123cd, and so on
-app.get('/ab*cd', function(req, res) {   
-    console.log("Got a GET request for /ab*cd");
-    res.send('Page Pattern Match');
-})
-*/
+ var server = app.listen(8081, function () {
+    var host = server.address().address
+    var port = server.address().port
+    
+    console.log("Example app listening at http://%s:%s", host, port)
+ })
