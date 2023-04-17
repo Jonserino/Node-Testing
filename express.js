@@ -27,8 +27,8 @@ app.use(sessions({
 app.set('view engine', 'ejs');
 
 // username and password
-const myusername = 'Jons';
-const mypassword = 'Passord1';
+const myusername = "SELECT fornavn FROM user";
+const mypassword = "SELECT passord FROM user";
 
 // a variable to save a session
 var session;
@@ -36,9 +36,18 @@ var session;
 app.get('/', function (req, res) {
    session=req.session;
    if(session.userid){
-      res.render('login_index.ejs', {
-         userid: session.userid
-      });
+      con = connection();
+      con.query("SELECT * FROM user", function (err, result, fields){
+
+         if (err) throw err;
+         console.log(result);
+         var innhold = "";
+         res.render('index.ejs', {
+            userid: session.userid,
+            data: result,
+            innhold: innhold
+         });
+      });   
 
    }
    else {
@@ -46,24 +55,48 @@ app.get('/', function (req, res) {
    }
 })
 
-app.get('logout', function(req, res) {
+app.get('/logout', function(req, res) {
    req.session.destroy();
    res.render('login.ejs', {
    });
-
 })
 
 app.post('/user', (req, res) => {
+   "SELECT * FROM user WHERE person_nr = req.body.username"
+
+
+
    if(req.body.username == myusername && req.body.password == mypassword){
       session=req.session;
       session.userid=req.body.username;
-      console.log(req.session)
-      res.send(`Hey there, welcome <a href=\'/logout'>click to logout</a>`);
+      console.log(req.session);
+      con = connection();
+      con.query("SELECT * FROM user", function (err, result, fields){
+         
+         if (err) throw err;
+         console.log(result);
+
+         var innhold = "";
+
+         res.render('index.ejs', {
+            data: result,
+            innhold: innhold
+         });
+      });
+
    }
    else{
       res.send('invalid username or password');
    }
 })
+
+
+function connection(){
+   var con=mysql.createConnection({host:"jons-sql.mysql.database.azure.com",
+   user:"Jons", password:"Passord1", database:"fitness_db", port:3306,
+   ssl:{ca:fs.readFileSync("DigiCertGlobalRootCA.crt.pem")}});
+   return con;
+}
 
 
 
@@ -106,9 +139,9 @@ app.get('/anime*', function (req, res) {
    res.sendfile(__dirname + "/" + "anime.html");
 })
 
-app.get('/index*', function (req, res) {
+/*app.get('/index*', function (req, res) {
    res.sendfile(__dirname + "/" + "index.html");
-})
+})*/
 
 app.get('/about*', function (req, res) {
    res.sendfile(__dirname + "/" + "about.html");
