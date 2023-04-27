@@ -26,10 +26,6 @@ app.use(sessions({
 // set the view engine to ejs
 app.set('view engine', 'ejs');
 
-// username and password
-const myusername = "SELECT fornavn FROM user";
-const mypassword = "SELECT passord FROM user";
-
 // a variable to save a session
 var session;
 
@@ -61,12 +57,42 @@ app.get('/logout', function(req, res) {
    });
 })
 
+app.get('/login', function(req, res) {
+   res.render('login.ejs',{});
+})
+
+app.post('/login', function(req, res) {
+
+   // hent brukernavn og passord fra skjema på login
+   var person_nr = req.body.person_nr
+   var passord = req.body.passord
+
+   console.log(person_nr, passord);
+
+   // perform the MySQL query to check if the user exists
+   var sql = 'SELECT * FROM user WHERE person_nr =? AND passord =?';
+
+   con = connection();
+   con.query(sql, [person_nr, passord], (error,results) => {
+      if(error) {
+         res.status(500).send('Internal Server Error');
+      } else if(results.length === 1){
+         session = req.session;
+         session.userid=req.body.person_nr; // set session userid til brukernavn
+         res.redirect('/');
+
+      } else {
+         res.redirect('/login?erre=invalid'); // redirect med error beskjed i GET
+      }
+   });
+});
+
 app.post('/user', (req, res) => {
-   "SELECT * FROM user WHERE person_nr = req.body.username"
+   "SELECT * FROM user WHERE person_nr = req.body.person_nr"
 
 
 
-   if(req.body.username == myusername && req.body.password == mypassword){
+   if(req.body.username == person_nr && req.body.password == passord){
       session=req.session;
       session.userid=req.body.username;
       console.log(req.session);
@@ -98,6 +124,13 @@ function connection(){
    return con;
 }
 
+
+var server = app.listen(8081, function () {
+   var host = server.address().address
+   var port = server.address().port
+   
+   console.log("Example app listening at http://%s:%s", host, port)
+})
 
 
 /*
@@ -134,14 +167,14 @@ app.get('/', function (req, res) {
 
 
 
-
+/*
 app.get('/anime*', function (req, res) {
    res.sendfile(__dirname + "/" + "anime.html");
 })
 
-/*app.get('/index*', function (req, res) {
+app.get('/index*', function (req, res) {
    res.sendfile(__dirname + "/" + "index.html");
-})*/
+})
 
 app.get('/about*', function (req, res) {
    res.sendfile(__dirname + "/" + "about.html");
@@ -160,10 +193,4 @@ app.get('/process_get', function (req, res) {
    console.log(response);
    res.end(JSON.stringify(response));
 })
-
-var server = app.listen(8081, function () {
-   var host = server.address().address
-   var port = server.address().port
-   
-   console.log("Example app listening at http://%s:%s", host, port)
-})
+*/
