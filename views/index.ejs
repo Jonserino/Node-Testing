@@ -4,24 +4,39 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EJS</title>
+    <title>Index</title>
 </head>
 <body>
-  <h1>Fitness</h1>
+  <h1>User</h1>
   <p><%= innhold %></p>
-  <ul>
-    <% data.forEach(function(d) { %>
-      <li>
-        <strong><%= d.person_nr %></strong> 
-        <strong><%= d.fornavn %></strong> 
-        <strong><%= d.etternavn %></strong>
-        <strong><%= d.tlf %></strong>
-        <strong><%= d.adresse %></strong>
-        <strong><%= d.email %></strong>
-        <strong><%= d.passord %></strong>
-      </li>
-    <% }); %>
-  </ul>
+  <table>
+    <tr>
+      <th>Person Nummer</th>
+      <th>Fornavn</th>
+      <th>Mellomnavn</th>
+      <th>Etternavn</th>
+      <th>Telefon</th>
+      <th>Adresse</th>
+      <th>E-Mail</th>
+      <th>Passord</th>
+    </tr>
+    <tr>
+        <ul>
+          <% data.forEach(function(d) { %>
+            <li>
+              <td><strong><%= d.person_nr %></strong></td>
+              <td><strong><%= d.fornavn %></strong></td>
+              <td><strong><%= d.mellomnavn %></strong></td>
+              <td><strong><%= d.etternavn %></strong></td>
+              <td><strong><%= d.tlf %></strong></td>
+              <td><strong><%= d.adresse %></strong></td>
+              <td><strong><%= d.email %></strong></td>
+              <td><strong><%= d.passord %></strong></td>
+            </li>
+          <% }); %>
+        </ul>
+    </tr>
+  </table>
   <a href="/logout">Log Out</a>
 </body>
 </html>

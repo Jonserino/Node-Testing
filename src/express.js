@@ -6,7 +6,7 @@ const cookieParser = require('cookie-parser');
 const sessions = require('express-session');
 
 // links
-app.use(express.static('public'));
+app.use(express.static('/Public'));
 
 // parsin the incoming data
 app.use(express.json());
@@ -33,7 +33,9 @@ app.get('/', function (req, res) {
    session=req.session;
    if(session.userid){
       con = connection();
-      con.query("SELECT * FROM user", function (err, result, fields){
+      var person_nr = session.userid;
+      var sql = "SELECT * FROM user WHERE person_nr = ?"
+      con.query(sql, person_nr, function (err, result, fields){
 
          if (err) throw err;
          console.log(result);
@@ -62,42 +64,79 @@ app.get('/login', function(req, res) {
 })
 
 app.post('/login', function(req, res) {
-
+   
    // hent brukernavn og passord fra skjema på login
-   var person_nr = req.body.person_nr
+   var email = req.body.email
    var passord = req.body.passord
-
-   console.log(person_nr, passord);
-
+   
+   console.log(email, passord);
+   
    // perform the MySQL query to check if the user exists
-   var sql = 'SELECT * FROM user WHERE person_nr =? AND passord =?';
-
+   var sql = 'SELECT * FROM user WHERE email =? AND passord =?';
+   
    con = connection();
-   con.query(sql, [person_nr, passord], (error,results) => {
+   con.query(sql, [email, passord], (error,results) => {
       if(error) {
          res.status(500).send('Internal Server Error');
       } else if(results.length === 1){
          session = req.session;
-         session.userid=req.body.person_nr; // set session userid til brukernavn
+         session.userid = results[0].person_nr; // set session userid til person_nr
+         console.log('Logged In');
          res.redirect('/');
-
+                  
       } else {
          res.redirect('/login?erre=invalid'); // redirect med error beskjed i GET
+         console.log('Error');
       }
    });
 });
+
+app.get('/signup', function(req, res) {
+   res.render('signup.ejs',{});
+})
+
+app.post('/signup', (req, res) => {
+ 
+   var con = mysql.createConnection({host:"jons-sql.mysql.database.azure.com",
+   user:"Jons", password:"Passord1", database:"fitness_db", port:3306,
+   ssl:{ca:fs.readFileSync("DigiCertGlobalRootCA.crt.pem")}});
+
+   
+   var fornavn = req.body.fornavn;
+   var mellomnavn = req.body.mellomnavn;
+   var email = req.body.email;
+   var passord = req.body.passord;
+   var etternavn = req.body.etternavn;
+   var tlf = req.body.tlf;
+   var adresse = req.body.adresse;
+
+   var sql = `INSERT INTO user (fornavn, mellomnavn, etternavn, email, passord, tlf, adresse) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+   var values = [fornavn, mellomnavn, etternavn, email, passord, tlf, adresse];
+
+   con.query(sql, values, (err, result) => {
+       if (err) {
+           throw err;
+       }
+       console.log('User inserted into database');
+       
+       res.render('login.ejs');
+
+   });
+
+});
+
 
 app.post('/user', (req, res) => {
    "SELECT * FROM user WHERE person_nr = req.body.person_nr"
 
 
 
-   if(req.body.username == person_nr && req.body.password == passord){
+   if(req.body.person_nr == person_nr && req.body.password == passord){
       session=req.session;
-      session.userid=req.body.username;
+      session.userid=req.body.person_nr;
       console.log(req.session);
       con = connection();
-      con.query("SELECT * FROM user", function (err, result, fields){
+      con.query("SELECT * FROM user WHERE person_nr = req.body.person_nr", function (err, result, fields){
          
          if (err) throw err;
          console.log(result);
