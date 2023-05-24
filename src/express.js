@@ -6,7 +6,7 @@ const cookieParser = require('cookie-parser');
 const sessions = require('express-session');
 
 // links
-app.use(express.static('/Public'));
+app.use(express.static(__dirname));
 
 // parsin the incoming data
 app.use(express.json());

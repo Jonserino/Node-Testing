@@ -1,3 +1,16 @@
 th, td {
-    align-self: center;
+    text-align: center;
+    padding: 5px;
+}
+
+table, th, th {
+    border: 1px solid black;
+    border-collapse: collapse;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 20px;
+}
+
+button {
+    margin-bottom: 15px;
 }

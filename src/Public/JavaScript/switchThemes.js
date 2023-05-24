@@ -1,4 +1,4 @@
-var buttons = document.getElementsByClassName("button");
+var selectElement = document.getElementById("switch-options");
 var activeSheet = document.getElementById("active-stylesheet");
 var clearStorageButton = document.getElementById("clear-storage");
 
@@ -7,22 +7,18 @@ if (localStorage.getItem("lastActiveSheet")) {
     activeSheet.setAttribute("href", localStorage.getItem("lastActiveSheet"));
 }
 
-// Assign the even lister to each button
-for (var i = 0; i < buttons.length; i++) {
-    buttons[i].addEventListener("click", switchStyle);
-}
+// Assign the event listener to the select element
+selectElement.addEventListener("change", switchStyle);
 
-// Create a button to clear localStorage
-clearStorageButton.addEventListener("click", clearStorage);
-
-// Set the #active-stylesheet to bee the light or dark stylesheet
+// Set the #active-stylesheet to be the light or dark stylesheet based on the selected option
 function switchStyle() {
-    var selectedSheet = this.getAttribute("data-stylesheet");
+    var selectedOption = selectElement.options[selectElement.selectedIndex];
+    var selectedSheet = selectedOption.getAttribute("data-stylesheet");
     activeSheet.setAttribute("href", selectedSheet);
     localStorage.setItem("lastActiveSheet", selectedSheet);
 }
 
-// Wrapper function to localStorage.clear
+clearStorageButton.addEventListener("click", clearStorage);
 function clearStorage() {
     localStorage.clear();
 }
