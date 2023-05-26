@@ -10,9 +10,8 @@
     <link rel="stylesheet" href="/Public/Css/light.css">
     <link id="active-stylesheet" href="" rel="stylesheet" type="text/css"/>
 </head>
-<body>
+<body class="container">
   <h1>User</h1>
-  <p><%= innhold %></p>
   <table>
     <tr>
       <th>Person Nummer</th>
@@ -38,19 +37,26 @@
     </tr>
   </table>
 
+  <div class="content">
+    <p><%= innhold %></p>
 
-  <button><a href="/logout">Log Out</a></button><br>
+    <button><a href="/logout">Log Out</a></button><br>
 
-  <label for="switch-options">Themes:</label>
-  <select id="switch-options">
-    <option value="switch-options__light" data-stylesheet="/Public/Css/light.css">Light</option>
-    <option value="switch-options__dark" data-stylesheet="/Public/Css/dark.css">Dark</option>
-  </select>
-  </div><br><br>
-
-  <button id="clear-storage">Clear Storage</button>
+    <label for="switch-options">Themes:</label>
+    <select id="switch-options">
+      <option value="switch-options__light" data-stylesheet="/Public/Css/light.css">Light</option>
+      <option value="switch-options__dark" data-stylesheet="/Public/Css/dark.css">Dark</option>
+    </select>
+    </div><br><br>
+    
+    <form action="/delete-account" method="post">
+      <input type="password" name="passord" id="passord" placeholder="Enter Password To Confirm" required>
+      <input type="submit" value="Delete Account">
+    </form>
   
-  <script src="/Public/JavaScript/switchThemes.js"></script>
-
+    <button id="clear-storage">Clear Storage</button>
+    
+    <script src="/Public/JavaScript/switchThemes.js"></script>
+  </div>
 </body>
 </html>

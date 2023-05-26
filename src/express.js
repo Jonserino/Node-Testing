@@ -96,34 +96,67 @@ app.get('/signup', function(req, res) {
 })
 
 app.post('/signup', (req, res) => {
- 
-   var con = mysql.createConnection({host:"jons-sql.mysql.database.azure.com",
-   user:"Jons", password:"Passord1", database:"fitness_db", port:3306,
-   ssl:{ca:fs.readFileSync("DigiCertGlobalRootCA.crt.pem")}});
+   var con = mysql.createConnection({
+      host: "jons-sql.mysql.database.azure.com",
+      user: "Jons",
+      password: "Passord1",
+      database: "fitness_db",
+      port: 3306,
+      ssl: { ca: fs.readFileSync("DigiCertGlobalRootCA.crt.pem") }
+   });
 
-   
    var fornavn = req.body.fornavn;
-   var mellomnavn = req.body.mellomnavn;
+   var mellomnavn = req.body.mellomnavn || '';
    var email = req.body.email;
    var passord = req.body.passord;
    var etternavn = req.body.etternavn;
    var tlf = req.body.tlf;
-   var adresse = req.body.adresse;
+   var adresse = req.body.adresse || '';
+
+   tlf = tlf ? parseInt(tlf) : null;
 
    var sql = `INSERT INTO user (fornavn, mellomnavn, etternavn, email, passord, tlf, adresse) VALUES (?, ?, ?, ?, ?, ?, ?)`;
    var values = [fornavn, mellomnavn, etternavn, email, passord, tlf, adresse];
 
    con.query(sql, values, (err, result) => {
-       if (err) {
-           throw err;
-       }
-       console.log('User inserted into database');
-       
-       res.render('login.ejs');
+      if (err) {
+         throw err;
+      }
 
+      console.log('User inserted into database');
+      res.render('login.ejs');
+   });
+});
+
+app.post('/delete-account', (req, res) => {
+   // Get the authenticated user's ID or any identifier for the account
+   const person_nr = session.userid; // Assuming you have implemented authentication and stored user information in req.user
+   const passord = req.body.passord;
+
+   console.log('Recieved person_nr: ', person_nr);
+  
+   // Connect to the database
+   var con = mysql.createConnection({
+      host: "jons-sql.mysql.database.azure.com",
+      user: "Jons",
+      password: "Passord1",
+      database: "fitness_db",
+      port: 3306,
+      ssl: { ca: fs.readFileSync("DigiCertGlobalRootCA.crt.pem") }
    });
 
-});
+   // Perform the delete operation
+   const sql = "DELETE FROM user WHERE person_nr = ? AND passord = ?";
+   con.query(sql, [person_nr, passord], (err, result) => {
+      if (err) {
+         console.error('Error deleting account:', err);
+         return res.status(500).send('Error deleting account. Please try again.');  
+      }
+      console.log(`Account with ID ${person_nr} deleted`);
+      // Redirect or render a response indicating successful deletion
+      res.redirect('/logout'); // Redirect to home page or any other desired page
+   });
+}); 
 
 
 app.post('/user', (req, res) => {
