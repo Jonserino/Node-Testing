@@ -119,16 +119,42 @@ app.post('/signup', (req, res) => {
 
    tlf = tlf ? parseInt(tlf) : null;
 
-   var sql = `INSERT INTO user (fornavn, mellomnavn, etternavn, email, passord, tlf, adresse) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-   var values = [fornavn, mellomnavn, etternavn, email, passord, tlf, adresse];
+   // Step 1: Email Address Validation
+   // Perform basic email address validation using a regex pattern
+   var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+   if (!emailRegex.test(email)) {
+      return res.status(400).send('Invalid email address');
+   }
 
-   con.query(sql, values, (err, result) => {
+   // Step 2: Unique Email Check
+   // Check if the email already exists in the database
+   var uniqueEmailCheckQuery = 'SELECT * FROM user WHERE email = ?';
+   con.query(uniqueEmailCheckQuery, [email], (err, results) => {
       if (err) {
-         throw err;
+         console.error('Error checking email uniqueness:', err);
+         return res.status(500).send('Internal Server Error');
       }
 
-      console.log('User inserted into database');
-      res.render('login.ejs');
+      if (results.length > 0) {
+         return res.status(409).send('Email address already registered');
+      }
+
+      // Step 3: Case Insensitivity
+      // Convert the email address to lowercase before storing it
+      email = email.toLowerCase();
+      
+      var sql = `INSERT INTO user (fornavn, mellomnavn, etternavn, email, passord, tlf, adresse) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+      var values = [fornavn, mellomnavn, etternavn, email, passord, tlf, adresse];
+      
+      con.query(sql, values, (err, result) => {
+         if (err) {
+            console.error('Error inserting user into database:', err);
+            return res.status(500).send('Internal Server Error');
+         }
+      
+         console.log('User inserted into database');
+         res.render('login.ejs');
+      });
    });
 });
 
