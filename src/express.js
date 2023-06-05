@@ -4,6 +4,7 @@ var mysql = require('mysql');
 var fs = require('fs');
 const cookieParser = require('cookie-parser');
 const sessions = require('express-session');
+const nodemailer = require('nodemailer');
 
 // links
 app.use(express.static(__dirname));
@@ -145,13 +146,13 @@ app.post('/signup', (req, res) => {
       
       var sql = `INSERT INTO user (fornavn, mellomnavn, etternavn, email, passord, tlf, adresse) VALUES (?, ?, ?, ?, ?, ?, ?)`;
       var values = [fornavn, mellomnavn, etternavn, email, passord, tlf, adresse];
-      
+
       con.query(sql, values, (err, result) => {
          if (err) {
             console.error('Error inserting user into database:', err);
             return res.status(500).send('Internal Server Error');
          }
-      
+
          console.log('User inserted into database');
          res.render('login.ejs');
       });
