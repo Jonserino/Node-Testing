@@ -29,6 +29,7 @@ app.set('view engine', 'ejs');
 // a variable to save a session
 var session;
 
+
 app.get('/', function (req, res) {
    session=req.session;
    if(session.userid){
@@ -53,11 +54,13 @@ app.get('/', function (req, res) {
    }
 })
 
+
 app.get('/logout', function(req, res) {
    req.session.destroy();
    res.render('login.ejs', {
    });
 })
+
 
 app.get('/login', function(req, res) {
    res.render('login.ejs',{});
@@ -90,6 +93,7 @@ app.post('/login', function(req, res) {
       }
    });
 });
+
 
 app.get('/signup', function(req, res) {
    res.render('signup.ejs',{});
@@ -128,6 +132,7 @@ app.post('/signup', (req, res) => {
    });
 });
 
+
 app.post('/delete-account', (req, res) => {
    // Get the authenticated user's ID or any identifier for the account
    const person_nr = session.userid; // Assuming you have implemented authentication and stored user information in req.user
@@ -161,8 +166,6 @@ app.post('/delete-account', (req, res) => {
 
 app.post('/user', (req, res) => {
    "SELECT * FROM user WHERE person_nr = req.body.person_nr"
-
-
 
    if(req.body.person_nr == person_nr && req.body.password == passord){
       session=req.session;
