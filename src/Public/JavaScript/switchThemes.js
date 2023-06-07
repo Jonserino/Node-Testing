@@ -22,3 +22,23 @@ clearStorageButton.addEventListener("click", clearStorage);
 function clearStorage() {
     localStorage.clear();
 }
+
+// Get the select element
+const dropdown = document.getElementById("switch-options");
+
+// Add an even listener to save the selected option
+dropdown.addEventListener('change', function() {
+    // Get the selected value
+    const selectedOption = dropdown.value;
+
+    // Save the selected value in localStorage
+    localStorage.setItem('selectedOption', selectedOption);
+});
+
+// Check if a value is already stored in localStorage
+const savedOption = localStorage.getItem('selectedOption');
+
+// Set the dropdown value to the saved value, it it exists
+if (savedOption) {
+    dropdown.value = savedOption;
+}

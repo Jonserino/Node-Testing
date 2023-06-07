@@ -1,11 +1,7 @@
 body {
-    background-color: #fff0bc;
-}
-
-h1, button, td, th, ul, a {
-    color: #363636;
+    background-color: #6A6B95;
 }
 
 tr:hover {
-    background-color: #D6EEEE;
+    background-color: #8889AA;
 }

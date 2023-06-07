@@ -7,5 +7,5 @@ h1, td, th, ul, label {
 }
 
 tr:hover {
-    background-color: grey;
+    background-color: #505050;
 }
