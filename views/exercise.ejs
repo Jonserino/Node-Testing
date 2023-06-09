@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="/Public/Css/standard.css">
     <link rel="stylesheet" href="/Public/Css/light.css">
     <link id="active-stylesheet" href="" rel="stylesheet" type="text/css"/>
-    <script src="/Public/JavaScript/exercise.js"></script>
+    <!-- <script src="/Public/JavaScript/exercise.js"></script> -->
 </head>
 <body class="container">
     <h1>Exercises</h1>
@@ -34,8 +34,10 @@
                 <td class="Max-Rep"><%= d.max_rep %></td>
                 <td class="Weight"><%= d.weight_kg %></td>
                 <td>
-                    <button class="edit-btn">Edit</button>
-                    <button class="delete-btn">Delete</button>
+                    <form action="/delete-exercise" method="POST">
+                        <input type="hidden" name="deleteExercise" value="<%= d.id_exercise %>">
+                        <input type="submit" name="submit" value="Delete">
+                    </form>
                 </td>
             </tr>
             <% }); %>
@@ -43,6 +45,7 @@
     </table>
 
     <div class="content">
+        <button><a href="/create-exercise">Create an Exercise</a></button><br>
         <button><a href="/">Profile Page</a></button><br>
         <button><a href="/logout">Log Out</a></button><br>
         <label for="switch-options">Themes:</label>

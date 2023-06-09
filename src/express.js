@@ -243,21 +243,73 @@ app.get('/exercise', function(req, res) {
 
 })
 
-app.post('/exercise/delete', function(req, res) {
-   var exerciseId = req.body.id_exercise; // Assuming the exercise ID is sent in the request body
+app.post('/delete-exercise', (req, res) => {
+   var exerciseId = req.body.deleteExercise; // Assuming the exercise ID is sent in the request body
 
    con = connection();
    var sql = "DELETE FROM exercise WHERE id_exercise = ?";
-   con.query(sql, exerciseId, function (err, result) {
+   con.query(sql, [exerciseId], (err, result) => {
       if (err) {
          console.error('Error deleting exercise:', err);
          return res.status(500).send('Error deleting exercise. Please try again.');
       }
 
       console.log(`Exercise with ID ${exerciseId} deleted`);
-      res.sendStatus(200);
+      res.redirect('/exercise');
    });
 });
+
+
+app.get('/create-exercise', function(req, res) {
+   res.render('createExercise.ejs',{});
+})
+
+app.post('/create-exercise', (req, res) => {
+   var con = mysql.createConnection({
+      host: "jons-sql.mysql.database.azure.com",
+      user: "Jons",
+      password: "Passord1",
+      database: "fitness_db",
+      port: 3306,
+      ssl: { ca: fs.readFileSync("DigiCertGlobalRootCA.crt.pem") }
+   });
+
+   var name = req.body.name;
+   var sets = req.body.sets;
+   var reps = req.body.reps;
+   var max_rep = req.body.max_rep;
+   var weight_kg = req.body.weight_kg;
+
+   // Unique Name Check
+   // Check if the name already exists in the database
+   var uniqueNameCheckQuery = 'SELECT * FROM exercise WHERE name = ?';
+   con.query(uniqueNameCheckQuery, [name], (err, results) => {
+      if (err) {
+         console.error('Error checking name uniqueness: ', err);
+         return res.status(500).send('Internal Server Error');
+      }
+
+      if (results.length > 0) {
+         return res.status(409).send('Name already registered');
+      }
+
+      // Convert the name to lowercase before storing it
+      name = name.toLowerCase();
+
+      var sql = 'INSERT INTO exercise (name, sets, reps, max_rep, weight_kg) VALUES (?, ?, ?, ?, ?)';
+      var values = [name, sets, reps, max_rep, weight_kg];
+
+      con.query(sql, values, (err, result) => {
+         if (err) {
+            console.error('Error inserting exercise into database: ', err);
+            return res.status(500).send('Internal Server Error');
+         }
+         
+         console.log('Exercise inserted into database');
+         res.redirect('/exercise');
+      })
+   })
+})
 
 
 function connection(){
