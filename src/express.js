@@ -98,7 +98,7 @@ app.post('/login', function(req, res) {
 
 app.get('/signup', function(req, res) {
    res.render('signup.ejs',{});
-})
+});
 
 app.post('/signup', (req, res) => {
    var con = mysql.createConnection({
@@ -217,6 +217,28 @@ app.post('/user', (req, res) => {
       res.send('invalid username or password');
    }
 })
+
+
+app.get('/exercise', function(req, res) {
+   session=req.session;
+   if(session.userid){
+      con = connection();
+      var person_nr = session.userid;
+      var sql = "SELECT * FROM user WHERE person_nr = ?"
+      con.query(sql, person_nr, function (err, result, fields){
+
+         if (err) throw err;
+         console.log(result);
+         var innhold = "";
+         res.render('exercise.ejs', {
+            userid: session.userid,
+            data: result,
+            innhold: innhold
+         });
+      });
+   };
+});
+
 
 
 function connection(){
