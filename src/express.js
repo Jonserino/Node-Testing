@@ -22,7 +22,7 @@ app.use(sessions({
    saveUninitialized: true,
    cookie: {maxAge: oneDay},
    resave: false
-}));
+}))
 
 // set the view engine to ejs
 app.set('view engine', 'ejs');
@@ -93,12 +93,12 @@ app.post('/login', function(req, res) {
          console.log('Error');
       }
    });
-});
+})
 
 
 app.get('/signup', function(req, res) {
    res.render('signup.ejs',{});
-});
+})
 
 app.post('/signup', (req, res) => {
    var con = mysql.createConnection({
@@ -157,7 +157,7 @@ app.post('/signup', (req, res) => {
          res.render('login.ejs');
       });
    });
-});
+})
 
 
 app.post('/delete-account', (req, res) => {
@@ -188,7 +188,7 @@ app.post('/delete-account', (req, res) => {
       // Redirect or render a response indicating successful deletion
       res.redirect('/logout'); // Redirect to home page or any other desired page
    });
-}); 
+})
 
 
 app.post('/user', (req, res) => {
@@ -224,7 +224,7 @@ app.get('/exercise', function(req, res) {
    if(session.userid){
       con = connection();
       var person_nr = session.userid;
-      var sql = "SELECT * FROM user WHERE person_nr = ?"
+      var sql = "SELECT * FROM exercise"
       con.query(sql, person_nr, function (err, result, fields){
 
          if (err) throw err;
@@ -236,9 +236,28 @@ app.get('/exercise', function(req, res) {
             innhold: innhold
          });
       });
-   };
-});
+   }
+   else {
+      res.render('login.ejs',{});
+   }
 
+})
+
+app.post('/exercise/delete', function(req, res) {
+   var exerciseId = req.body.id_exercise; // Assuming the exercise ID is sent in the request body
+
+   con = connection();
+   var sql = "DELETE FROM exercise WHERE id_exercise = ?";
+   con.query(sql, exerciseId, function (err, result) {
+      if (err) {
+         console.error('Error deleting exercise:', err);
+         return res.status(500).send('Error deleting exercise. Please try again.');
+      }
+
+      console.log(`Exercise with ID ${exerciseId} deleted`);
+      res.sendStatus(200);
+   });
+});
 
 
 function connection(){

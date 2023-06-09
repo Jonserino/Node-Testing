@@ -9,10 +9,38 @@
     <link rel="stylesheet" href="/Public/Css/standard.css">
     <link rel="stylesheet" href="/Public/Css/light.css">
     <link id="active-stylesheet" href="" rel="stylesheet" type="text/css"/>
+    <script src="/Public/JavaScript/exercise.js"></script>
 </head>
 <body class="container">
+    <h1>Exercises</h1>
     
-
+    <table id="myExercises">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Sets</th>
+                <th>Reps</th>
+                <th>Max Rep</th>
+                <th>Weight KG</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% data.forEach(function(d) { %>
+            <tr id="templateRow">
+                <td class="Id" style="display: none;"><%= d.id_exercise %></td>
+                <td class="Name"><%= d.name %></td>
+                <td class="Sets"><%= d.sets %></td>
+                <td class="Reps"><%= d.reps %></td>
+                <td class="Max-Rep"><%= d.max_rep %></td>
+                <td class="Weight"><%= d.weight_kg %></td>
+                <td>
+                    <button class="edit-btn">Edit</button>
+                    <button class="delete-btn">Delete</button>
+                </td>
+            </tr>
+            <% }); %>
+        </tbody>
+    </table>
 
     <div class="content">
         <button><a href="/">Profile Page</a></button><br>
