@@ -4,7 +4,7 @@ var mysql = require('mysql');
 var fs = require('fs');
 const cookieParser = require('cookie-parser');
 const sessions = require('express-session');
-const nodemailer = require('nodemailer');
+// const nodemailer = require('nodemailer');
 
 // links
 app.use(express.static(__dirname));
@@ -229,10 +229,51 @@ app.post('/user', (req, res) => {
 
 
 // This enables the user to edit his account after creating one, so they don't have to delete and remake their account if the typed something wrong
-app.get('/update', function (req, res) {
+app.get('/update-user/:person_nr', function (req, res) {
 
-   var con = connect();
- 
+   var con = connection();
+
+   var UserId = req.params.person_nr;
+   var sql = 'SELECT * FROM user WHERE person_nr = ?';
+   con.query(sql,[UserId], function (err, result, data) {
+      if (err) throw err;
+      console.log(result);
+
+      var innhold = "";
+
+      res.render('editUser.ejs', { data: result, innhold: innhold, title: 'User List', editData: data[0]});
+   });
+});
+
+app.post('/update-user/:person_nr', (req, res) => {
+   
+   var con = connection();
+
+   var id = req.body.person_nr;
+   var fornavn = req.body.fornavn;
+   var mellomnavn = req.body.mellomnavn || '';
+   var email = req.body.email;
+   var passord = req.body.passord;
+   var etternavn = req.body.etternavn;
+   var tlf = req.body.tlf;
+   var adresse = req.body.adresse || '';
+   
+   tlf = tlf ? parseInt(tlf) : null;
+
+   var sql = 'UPDATE user SET fornavn = ?, mellomnavn = ?, etternavn = ?, email = ?, passord = ?, tlf = ?, adresse = ? WHERE person_nr = ?';
+   var values = [fornavn, mellomnavn, etternavn, email, passord, tlf, adresse, id];
+   con.query(sql, values, (err, data) => {
+      if (err) {
+         console.error('Error inserting user into database:', err);
+         return res.status(500).send('Internal Server Error');
+      } else {
+         res.redirect('/')
+      }
+   console.log(data.affectedRows + " record(s) updated");
+   });
+});
+
+/*
    // setter payment og henter member_id fra skjema på login
    var payment = "active";
    var member_id = req.session.userid
@@ -245,7 +286,7 @@ app.get('/update', function (req, res) {
            res.render('payment.ejs');
  });
 })
-
+*/
 
 // This gets the /exercise and checks if the credentials are correct, if not it sends you to the login.ejs
 app.get('/exercise', function(req, res) {
