@@ -9,12 +9,24 @@ const nodemailer = require('nodemailer');
 // links
 app.use(express.static(__dirname));
 
-// parsin the incoming data
+
+// This connects the script to the database, without this, the database wouldn't be updated or anything at all
+function connection(){
+   var con=mysql.createConnection({host:"jons-sql.mysql.database.azure.com",
+   user:"Jons", password:"Passord1", database:"fitness_db", port:3306,
+   ssl:{ca:fs.readFileSync("DigiCertGlobalRootCA.crt.pem")}});
+   return con;
+}
+
+
+// parsing the incoming data
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(cookieParser());
 
+
 const oneDay = 1000 * 60 * 60 * 24; // calculate one day
+
 
 // express app should use sessions
 app.use(sessions({
@@ -24,13 +36,16 @@ app.use(sessions({
    resave: false
 }))
 
+
 // set the view engine to ejs
 app.set('view engine', 'ejs');
+
 
 // a variable to save a session
 var session;
 
 
+// Get the index site. If not logged in, send to login.ejs. If logged in, send to index.ejs
 app.get('/', function (req, res) {
    session=req.session;
    if(session.userid){
@@ -56,6 +71,7 @@ app.get('/', function (req, res) {
 })
 
 
+// Destroys the session and sends you to the login.ejs
 app.get('/logout', function(req, res) {
    req.session.destroy();
    res.render('login.ejs', {
@@ -63,10 +79,12 @@ app.get('/logout', function(req, res) {
 })
 
 
+// Get's the /login and renders login.ejs
 app.get('/login', function(req, res) {
    res.render('login.ejs',{});
 })
 
+// Posts the login.ejs file. Without this the login.ejs wouldn't be able to connect to the database
 app.post('/login', function(req, res) {
    
    // hent brukernavn og passord fra skjema på login
@@ -96,19 +114,15 @@ app.post('/login', function(req, res) {
 })
 
 
+// Gets the /signup and renders the signup.ejs file.
 app.get('/signup', function(req, res) {
    res.render('signup.ejs',{});
 })
 
+// The same as post login. This posts the signup and connects the various inputs within the signup.ejs to the database
 app.post('/signup', (req, res) => {
-   var con = mysql.createConnection({
-      host: "jons-sql.mysql.database.azure.com",
-      user: "Jons",
-      password: "Passord1",
-      database: "fitness_db",
-      port: 3306,
-      ssl: { ca: fs.readFileSync("DigiCertGlobalRootCA.crt.pem") }
-   });
+
+   con = connection();
 
    var fornavn = req.body.fornavn;
    var mellomnavn = req.body.mellomnavn || '';
@@ -160,6 +174,7 @@ app.post('/signup', (req, res) => {
 })
 
 
+// This is made to actually delete the account from the database once the user has made the decision to terminate his account
 app.post('/delete-account', (req, res) => {
    // Get the authenticated user's ID or any identifier for the account
    const person_nr = session.userid; // Assuming you have implemented authentication and stored user information in req.user
@@ -168,15 +183,8 @@ app.post('/delete-account', (req, res) => {
    console.log('Recieved person_nr: ', person_nr);
   
    // Connect to the database
-   var con = mysql.createConnection({
-      host: "jons-sql.mysql.database.azure.com",
-      user: "Jons",
-      password: "Passord1",
-      database: "fitness_db",
-      port: 3306,
-      ssl: { ca: fs.readFileSync("DigiCertGlobalRootCA.crt.pem") }
-   });
-
+   con = connection();
+   
    // Perform the delete operation
    const sql = "DELETE FROM user WHERE person_nr = ? AND passord = ?";
    con.query(sql, [person_nr, passord], (err, result) => {
@@ -191,6 +199,7 @@ app.post('/delete-account', (req, res) => {
 })
 
 
+// Posts the /user, connecting this to the database. It checks if the credentials are correct before sending you to the index.ejs file
 app.post('/user', (req, res) => {
    "SELECT * FROM user WHERE person_nr = req.body.person_nr"
 
@@ -219,6 +228,26 @@ app.post('/user', (req, res) => {
 })
 
 
+// This enables the user to edit his account after creating one, so they don't have to delete and remake their account if the typed something wrong
+app.get('/update', function (req, res) {
+
+   var con = connect();
+ 
+   // setter payment og henter member_id fra skjema på login
+   var payment = "active";
+   var member_id = req.session.userid
+   req.session.payment = payment
+
+   // perform the MySQL query to check if the user exists
+   var sql = `UPDATE payment SET payment = ? WHERE member_id = ?`;
+
+   con.query(sql, [payment, member_id], (error, results) => {
+           res.render('payment.ejs');
+ });
+})
+
+
+// This gets the /exercise and checks if the credentials are correct, if not it sends you to the login.ejs
 app.get('/exercise', function(req, res) {
    session=req.session;
    if(session.userid){
@@ -243,6 +272,7 @@ app.get('/exercise', function(req, res) {
 
 })
 
+// Just as deleting your account from the database, this will properly delete the exercise from the database
 app.post('/delete-exercise', (req, res) => {
    var exerciseId = req.body.deleteExercise; // Assuming the exercise ID is sent in the request body
 
@@ -260,19 +290,15 @@ app.post('/delete-exercise', (req, res) => {
 });
 
 
+// This will get the /create-exercise and render the createExercise.ejs
 app.get('/create-exercise', function(req, res) {
    res.render('createExercise.ejs',{});
 })
 
+// This will create a new exercise within the database
 app.post('/create-exercise', (req, res) => {
-   var con = mysql.createConnection({
-      host: "jons-sql.mysql.database.azure.com",
-      user: "Jons",
-      password: "Passord1",
-      database: "fitness_db",
-      port: 3306,
-      ssl: { ca: fs.readFileSync("DigiCertGlobalRootCA.crt.pem") }
-   });
+
+   con = connection();
 
    var name = req.body.name;
    var sets = req.body.sets;
@@ -312,14 +338,7 @@ app.post('/create-exercise', (req, res) => {
 })
 
 
-function connection(){
-   var con=mysql.createConnection({host:"jons-sql.mysql.database.azure.com",
-   user:"Jons", password:"Passord1", database:"fitness_db", port:3306,
-   ssl:{ca:fs.readFileSync("DigiCertGlobalRootCA.crt.pem")}});
-   return con;
-}
-
-
+// This is so when writing in the localhost:8081 you will get to this website
 var server = app.listen(8081, function () {
    var host = server.address().address
    var port = server.address().port

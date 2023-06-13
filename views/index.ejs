@@ -14,7 +14,7 @@
   <h1>User</h1>
   <table>
     <tr>
-      <th>Person Nummer</th>
+      <th style="display: none;">Person Nummer</th>
       <th>Fornavn</th>
       <th>Mellomnavn</th>
       <th>Etternavn</th>
@@ -22,10 +22,11 @@
       <th>Adresse</th>
       <th>E-Mail</th>
       <th>Passord</th>
+      <th>Edit</th>
     </tr>
     <tr>
       <% data.forEach(function(d) { %>
-        <td><strong><%= d.person_nr %></strong></td>
+        <td style="display: none;"><strong><%= d.person_nr %></strong></td>
         <td><strong><%= d.fornavn %></strong></td>
         <td><strong><%= d.mellomnavn %></strong></td>
         <td><strong><%= d.etternavn %></strong></td>
@@ -33,6 +34,7 @@
         <td><strong><%= d.adresse %></strong></td>
         <td><strong><%= d.email %></strong></td>
         <td><strong><%= d.passord %></strong></td>
+        <td><strong></strong></td>
       <% }); %>
     </tr>
   </table>
